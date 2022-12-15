@@ -1,7 +1,7 @@
-import { getBoardLayout, getInitialBoardState, Player } from "../utils/ChessLogic";
+import { observer } from "mobx-react";
+import { getBoardLayout, Player } from "../utils/ChessLogic";
 import { GameStore } from "../stores/GameStore";
 import { BoardSpace } from "./BoardSpace";
-import { useState } from "react";
 import { GameHistoryModel } from "../stores/models";
 
 export interface BoardProps {
@@ -11,21 +11,16 @@ export interface BoardProps {
     classNames: string;
 }
 
-export const Board = ({ currentPlayer, gameStore, updateGameHistory, classNames }: BoardProps) => {
-
-    const [selectedSpaceKey, setSelectedSpaceKey] = useState<string | null>(null);
-    const [board, setBoard] = useState(getInitialBoardState);
-
+export const Board = observer(({ gameStore, currentPlayer, updateGameHistory, classNames }: BoardProps) => {
+    
     const onSpaceClicked = (space: string) => {
-        const result = gameStore.board.spaceClicked(board, selectedSpaceKey, space, currentPlayer);
-        setBoard(result.board);
-        setSelectedSpaceKey(result.selectedSpaceKey);
-        updateGameHistory(result.gameHistoryModel);
+        const gameHistoryModel = gameStore.board.spaceClicked(space, currentPlayer);
+        updateGameHistory(gameHistoryModel);
     }
 
     return <div className={`min-w-full grid grid-cols-8 ${classNames}`}>
         {getBoardLayout().map((coordinate) =>
-            <BoardSpace key={coordinate} onClick={() => onSpaceClicked(coordinate)} boardSpaceModel={board[coordinate]} />
+            <BoardSpace key={coordinate} onClick={() => onSpaceClicked(coordinate)} boardSpaceModel={gameStore.board.board.get(coordinate)!} />
         )}
     </div>
-};
+});
