@@ -1,4 +1,3 @@
-import { makeObservable, observable } from "mobx";
 import { PieceType, Player } from "../utils/ChessLogic";
 
 export class GameHistoryModel {
@@ -7,26 +6,18 @@ export class GameHistoryModel {
   space!: string;
   capturedPiece!: PieceType | null;
 
-  constructor(values: object){
+  constructor(values: object) {
     Object.assign(this, values);
   }
 }
 
 export class PieceModel {
-    constructor() {
-        makeObservable(this);
-    }
-
-    @observable player: Player = Player.White;
-    @observable type: PieceType = PieceType.Pawn;
+  player: Player = Player.White;
+  type: PieceType = PieceType.Pawn;
 }
 
 
 export class BoardSpaceModel {
-  constructor() {
-      makeObservable(this);
-  }
-
-  @observable highlighted: boolean = false;
-  @observable piece: PieceModel | null = null;
+  highlighted: boolean = false;
+  piece: PieceModel | null = null;
 }

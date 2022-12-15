@@ -1,39 +1,34 @@
-import { action, makeObservable, observable, ObservableMap } from "mobx";
-import { canPromote, getInitialBoardState, getValidSpaces, PieceType, Player } from "../utils/ChessLogic";
+import { canPromote, getValidSpaces, PieceType, Player } from "../utils/ChessLogic";
 import { GameHistoryModel, BoardSpaceModel, PieceModel } from "./models";
 
+export type Board = { [k: string]: BoardSpaceModel };
+
 export class BoardStore {
-    constructor() {
-        makeObservable(this);
+    //action
+    highlightSpaces(board: Board, spaces: string[]) {
+        Object.keys(board).forEach(key => board[key].highlighted = spaces.includes(key));
+        return board;
     }
 
-    @observable selectedSpaceKey: string | null = null;
-    @observable board: ObservableMap<string, BoardSpaceModel> = observable.map(getInitialBoardState());
-
-    @action.bound
-    highlightSpaces(spaces: string[]) {
-        this.board.forEach((space, key) => space.highlighted = spaces.includes(key));
+    //action
+    unhighlightSpaces(board: Board) {
+        Object.keys(board).forEach(key => board[key].highlighted = false);
+        return board;
     }
 
-    @action.bound
-    unhighlightSpaces() {
-        this.board.forEach(space => space.highlighted = false);
-    }
-
-    @action.bound
+    //action
     promotePiece(piece: PieceModel) {
         piece.type = PieceType.Queen;
     }
 
-    @action.bound
-    spaceClicked(space: string, currentPlayer: Player): GameHistoryModel | null {
-        const clickedSpace = this.board.get(space);
+    //action
+    spaceClicked(board: Board, selectedSpaceKey: string | null, space: string, currentPlayer: Player): { board: Board, selectedSpaceKey: string, gameHistoryModel: GameHistoryModel | null } {
+        const clickedSpace = board[space];
         if (clickedSpace?.piece && clickedSpace.piece.player === currentPlayer) {
-            this.selectedSpaceKey = space;
-            this.highlightSpaces(getValidSpaces(space, Object.fromEntries(this.board)));
-            return null;
+            board = this.highlightSpaces(board, getValidSpaces(space, board));
+            return { board: board, selectedSpaceKey: space, gameHistoryModel: null }
         } else if (clickedSpace?.highlighted) {
-            const selectedSpace = this.board.get(this.selectedSpaceKey!);
+            const selectedSpace = board[selectedSpaceKey!];
             if (selectedSpace && selectedSpace?.piece) {
                 const gameHistory = new GameHistoryModel(
                     {
@@ -49,11 +44,11 @@ export class BoardStore {
                 if (canPromote(clickedSpace.piece.type, currentPlayer, space))
                     this.promotePiece(clickedSpace.piece);
 
-                this.unhighlightSpaces();
-                return gameHistory;
+                board = this.unhighlightSpaces(board);
+                return { board: board, selectedSpaceKey: space, gameHistoryModel: gameHistory }
             }
         }
-        this.unhighlightSpaces();
-        return null;
+        board = this.unhighlightSpaces(board);
+        return { board: board, selectedSpaceKey: space, gameHistoryModel: null };
     }
 }

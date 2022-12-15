@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { GameHistoryModel } from "../stores/models";
 import { Piece } from "./Piece";
 import { getOpposingPlayer } from "../utils/ChessLogic";
@@ -10,7 +9,7 @@ export interface GameHistoryProps {
   classNames: string;
 }
 
-export const GameHistory = observer(({ gameHistory, classNames }: GameHistoryProps) => {
+export const GameHistory = ({ gameHistory, classNames }: GameHistoryProps) => {
 
   return (
     <div className={`flex flex-col pr-4 max-h-screen overflow-y-auto gap-2 ${classNames}`}>
@@ -29,4 +28,4 @@ export const GameHistory = observer(({ gameHistory, classNames }: GameHistoryPro
       )}
 
     </div>)
-});
+};

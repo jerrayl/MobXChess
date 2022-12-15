@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { BoardSpaceModel } from "../stores/models";
 import { Piece } from "./Piece";
 
@@ -7,13 +6,12 @@ export interface BoardSpaceProps {
     boardSpaceModel: BoardSpaceModel;
 }
 
-export const BoardSpace = observer(({ boardSpaceModel, onClick }: BoardSpaceProps) => {
+export const BoardSpace = ({ boardSpaceModel, onClick }: BoardSpaceProps) => {
     return (
         <div
             onClick={onClick}
             className={`min-w-full border-black border-2 flex flex-col justify-center ${boardSpaceModel.highlighted ? 'bg-orange-100' : ''}`}
         >
-            <Piece player={boardSpaceModel.piece?.player} piece={boardSpaceModel.piece?.type}/>
+            <Piece player={boardSpaceModel.piece?.player} piece={boardSpaceModel.piece?.type} />
         </div>)
-    }
-);
+};
